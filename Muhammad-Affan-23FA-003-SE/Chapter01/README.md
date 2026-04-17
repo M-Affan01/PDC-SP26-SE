@@ -1,7 +1,8 @@
 # Chapter 1: Getting Started with Parallel Computing and Python
 
-> **Comprehensive Theory Explanation**
-> This chapter establishes the foundational concepts of parallel computing and introduces Python as a tool for parallel programming.
+> [!NOTE]
+> **Comprehensive Foundations**
+> This chapter establishes the critical theoretical foundations of parallel computing and introduces Python's powerful toolkit for concurrent programming.
 
 ---
 
@@ -24,6 +25,43 @@ Parallel computing is the simultaneous execution of multiple computations to sol
 - **Multi-Core Era:** Manufacturers shifted to multi-core processors. To utilize this hardware, software must be written to execute tasks concurrently.
 - **Problem Size:** Some problems are too large or complex for a single processor to handle in reasonable time (e.g., weather forecasting, genomic analysis, large-scale simulations).
 - **Throughput:** Parallel computing increases system throughput, allowing more tasks to be completed in a given time period.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#263238', 'primaryColor': '#ECEFF1' }}}%%
+flowchart TD
+    %% Pro Max Dashboard: Serial vs Parallel
+    classDef serial fill:#FFEBEE,stroke:#D32F2F,stroke-width:4px,color:#B71C1C,font-weight:900
+    classDef parallel fill:#E0F2F1,stroke:#00796B,stroke-width:4px,color:#004D40,font-weight:900
+    classDef compute fill:#FFFFFF,stroke:#455A64,stroke-width:2px,color:#263238,font-weight:bold
+
+    subgraph Dashboard [PARA-SYNC PERFORMANCE COMPARISON]
+        direction TB
+        subgraph S_TRACK [SINGLE-CORE SERIAL PIPELINE]
+            direction LR
+            S1[Task 1] ==> S2[Task 2] ==> S3[Task 3] ==> S4[Task 4]
+        end
+        
+        subgraph P_TRACK [MULTI-CORE PARALLEL TRACKS]
+            direction LR
+            subgraph CORE_A [Core 1]
+                T1[Parallel Task A]
+            end
+            subgraph CORE_B [Core 2]
+                T2[Parallel Task B]
+            end
+            subgraph CORE_C [Core 3]
+                T3[Parallel Task C]
+            end
+            subgraph CORE_D [Core 4]
+                T4[Parallel Task D]
+            end
+        end
+    end
+
+    class S_TRACK serial
+    class P_TRACK parallel
+    class S1,S2,S3,S4,T1,T2,T3,T4,CORE_A,CORE_B,CORE_C,CORE_D compute
+```
 
 ## 2. Flynn's Taxonomy
 
@@ -48,6 +86,47 @@ Flynn's Taxonomy classifies computer architectures based on the number of instru
 - **Definition:** Multiple processors execute different instruction streams on different data streams independently.
 - **Characteristics:** Most flexible and common architecture for general-purpose parallel computing. Processors can work on completely different tasks.
 - **Example:** Multi-core CPUs, distributed computing clusters, and modern supercomputers.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#37474F', 'primaryColor': '#F5F5F5' }}}%%
+flowchart TD
+    %% Pro Max Flynn's Matrix Visualization
+    classDef header fill:#1A237E,stroke:#0D47A1,stroke-width:3px,color:#FFFFFF,font-weight:bold
+    classDef sisd fill:#FFCDD2,stroke:#B71C1C,stroke-width:3px,color:#B71C1C,font-weight:bold
+    classDef simd fill:#C8E6C9,stroke:#1B5E20,stroke-width:3px,color:#1B5E20,font-weight:bold
+    classDef misd fill:#BBDEFB,stroke:#0D47A1,stroke-width:3px,color:#0D47A1,font-weight:bold
+    classDef mimd fill:#FFE0B2,stroke:#E65100,stroke-width:4px,color:#E65100,font-weight:bold
+
+    TITLE[FLYNN'S CLASSIFICATION MATRIX]
+
+    subgraph InstructionAxis [INSTRUCTION STREAM]
+        direction TB
+        SingleI[SINGLE STREAM]
+        MultiI[MULTIPLE STREAMS]
+    end
+
+    subgraph DataAxis [DATA STREAM]
+        direction LR
+        SingleD[SINGLE STREAM]
+        MultiD[MULTIPLE STREAMS]
+    end
+
+    Matrix_SISD[SISD: Traditional Computing]
+    Matrix_SIMD[SIMD: Vector/GPU Processing]
+    Matrix_MISD[MISD: Redundant/Fault-Tolerant]
+    Matrix_MIMD[MIMD: Multi-Core/Cluster]
+
+    SingleI --- SingleD --> Matrix_SISD
+    SingleI --- MultiD --> Matrix_SIMD
+    MultiI --- SingleD --> Matrix_MISD
+    MultiI --- MultiD --> Matrix_MIMD
+
+    class TITLE header
+    class Matrix_SISD sisd
+    class Matrix_SIMD simd
+    class Matrix_MISD misd
+    class Matrix_MIMD mimd
+```
 
 ## 3. Memory Organization
 
@@ -81,6 +160,44 @@ Memory organization defines how processors access memory in a parallel system.
 - **Characteristics:** Different units excel at different tasks (e.g., CPUs for control logic, GPUs for parallel data processing).
 - **Programming Challenge:** Requires managing data movement and task allocation across different architectures with different instruction sets and memory spaces.
 
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#455A64', 'primaryColor': '#F5F5F5' }}}%%
+flowchart LR
+    %% Pro Max Memory Architecture Schematic
+    classDef compute fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#0D47A1,font-weight:bold
+    classDef storage fill:#E8F5E9,stroke:#2E7D32,stroke-width:3px,color:#1B5E20,font-weight:bold
+    classDef interconnect fill:#FFF3E0,stroke:#E65100,stroke-width:2px,color:#795548,font-weight:bold
+
+    subgraph SHARED_SCHEMA [SHARED ADDRESS ARCHITECTURE]
+        direction TB
+        subgraph COMPUTE_POOL [CPU RESOURCES]
+            C1(Processor 1) ~~~ C2(Processor 2) ~~~ C3(Processor n)
+        end
+        BUS{{HIGH-SPEED SYSTEM BUS}}
+        RAM[(UNIFIED SHARED MEMORY)]
+        
+        COMPUTE_POOL === BUS === RAM
+    end
+
+    subgraph DIST_SCHEMA [DISTRIBUTED MEMORY SCHEMATIC]
+        direction TB
+        subgraph NODE_1 [Computing Node 1]
+            P1(CPU) --- M1[(Local RAM)]
+        end
+        subgraph NODE_2 [Computing Node 2]
+            P2(CPU) --- M2[(Local RAM)]
+        end
+        
+        NET <---> NODE_1
+        NET <---> NODE_2
+        NET{{NETWORK INTERCONNECT}}
+    end
+
+    class C1,C2,C3,P1,P2 compute
+    class RAM,M1,M2 storage
+    class BUS,NET interconnect
+```
+
 ## 4. Parallel Programming Models
 
 A programming model defines how parallelism is expressed and managed in software.
@@ -106,6 +223,43 @@ A programming model defines how parallelism is expressed and managed in software
 - **Characteristics:** Ideal for SIMD architectures and array-based computations.
 - **API Examples:** OpenMP parallel for directives, CUDA kernels, NumPy vectorized operations.
 
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#455A64', 'primaryColor': '#F5F5F5' }}}%%
+flowchart TD
+    %% Pro Max Programming Models
+    classDef space fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px,color:#E65100,font-weight:bold
+    classDef proc fill:#E0F2F1,stroke:#00796B,stroke-width:2px,color:#004D40,font-weight:bold
+    classDef var fill:#FFFFFF,stroke:#455A64,stroke-width:1.5px,color:#263238
+
+    subgraph SHARED_MODEL [THREADS: SHARED SPACE]
+        direction LR
+        subgraph SHARED_MEM [COMMON ADDRESS SPACE]
+            direction TB
+            DATA[(SHARED VARIABLES)]
+        end
+        T1(Thread 1) --- DATA
+        T2(Thread 2) --- DATA
+        T3(Thread 3) --- DATA
+    end
+
+    subgraph PROC_MODEL [PROCESSES: PRIVATE SPACE]
+        direction LR
+        subgraph P1_NODE [Process A]
+            direction TB
+            A_MEM[(Private RAM)]
+        end
+        subgraph P2_NODE [Process B]
+            direction TB
+            B_MEM[(Private RAM)]
+        end
+        P1_NODE <== IPC: Message Passing ==> P2_NODE
+    end
+
+    class SHARED_MODEL,PROC_MODEL space
+    class T1,T2,T3,P1_NODE,P2_NODE proc
+    class DATA,A_MEM,B_MEM var
+```
+
 ## 5. Designing a Parallel Program
 
 A systematic approach to parallel program design involves four key steps.
@@ -128,6 +282,26 @@ A systematic approach to parallel program design involves four key steps.
 - **Definition:** Assigning the agglomerated tasks to specific physical processors.
 - **Static Mapping:** Tasks are assigned to processors before execution. Suitable when task execution times are predictable.
 - **Dynamic Mapping (5.5):** Tasks are assigned to processors at runtime. Suitable when task execution times are unpredictable or when the system is heterogeneous. Improves load balancing but adds scheduling overhead.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#283593', 'primaryColor': '#E8EAF6', 'noteBkgColor': '#FFF9C4', 'noteTextColor': '#3E2723' }}}%%
+sequenceDiagram
+    autonumber
+    participant Problem as 1. THE PROBLEM
+    participant Decomp as 2. DECOMPOSITION
+    participant Agglom as 3. AGGLOMERATION
+    participant Map as 4. MAPPING
+    
+    Note over Problem,Map: PROFESSIONAL PARALLEL DESIGN LIFECYCLE
+    
+    Problem->>Decomp: Identify Independant Tasks
+    Decomp->>Agglom: Group Tasks for Performance
+    Agglom->>Map: Allocate to Hardware Cores
+    
+    loop Real-time Tuning
+        Map-->>Map: Optimization Loop
+    end
+```
 
 ## 6. Evaluating the Performance of a Parallel Program
 
@@ -156,6 +330,39 @@ Metrics to quantify the effectiveness of parallelization.
 - **Statement:** As the number of processors increases, the problem size can also increase, allowing the parallel portion to dominate.
 - **Formula:** `S(p) = p - f*(p-1)`
 - **Implication:** For scalable problems, speedup can grow linearly with the number of processors by increasing the workload. Contrasts with Amdahl's Law by assuming the problem size scales with resources.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#37474F', 'primaryColor': '#F5F5F5' }}}%%
+flowchart TD
+    %% Pro Max Performance Metrics visualization
+    classDef target fill:#E0F2F1,stroke:#00796B,stroke-width:3px,color:#004D40,font-weight:bold
+    classDef kpi fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#01579B,font-weight:bold
+    classDef warning fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px,color:#E65100,font-weight:bold
+
+    subgraph EVAL_KPI [SYSTEM MEASUREMENTS]
+        direction TB
+        S_RATIO[Speedup Ratio: S = T1/Tp]
+        E_RATIO[Efficiency Index: E = S/P]
+    end
+
+    subgraph SCALE_PATH [SCALING DYNAMICS]
+        direction LR
+        STRONG[Strong Scaling: Fixed Problem]
+        WEAK[Weak Scaling: Scaled Problem]
+    end
+
+    subgraph LIMITS [CRITICAL BOTTLENECKS]
+        AMDAHL[Amdahls Law: Seq Limit]
+        GUSTAFSON[Gustafsons Law: Parallel Limit]
+    end
+
+    EVAL_KPI ==> SCALE_PATH
+    SCALE_PATH ==> LIMITS
+
+    class S_RATIO,E_RATIO target
+    class STRONG,WEAK kpi
+    class AMDAHL,GUSTAFSON warning
+```
 
 ## 7. Introducing Python
 
@@ -201,6 +408,11 @@ for val in numbers:
 # Output: The sum is 48
 print("The sum is", sum)
 ```
+
+**Output:**
+<p align="center">
+  <img src="Output/dir.png" alt="dir output" width="80%">
+</p>
 
 ### 7.2 Syntax
 - Python uses indentation (whitespace) to define code blocks, not braces.
@@ -270,6 +482,11 @@ while i <= n:
 print("The sum is", sum)
 ```
 
+**Output:**
+<p align="center">
+  <img src="Output/flow.png" alt="flow output" width="80%">
+</p>
+
 ### 7.8 Functions
 - Defined using `def` keyword.
 - Support default arguments, variable-length arguments (`*args`, `**kwargs`), and keyword-only arguments.
@@ -297,6 +514,11 @@ do_something(count, numbers)
 print("Random numbers list:")
 print(numbers)
 ```
+
+**Output:**
+<p align="center">
+  <img src="Output/do_something.png" alt="do_something output" width="80%">
+</p>
 
 ### 7.9 Classes
 - Python supports Object-Oriented Programming with classes.
@@ -349,6 +571,11 @@ instance.test = 10
 print("instance.test " , instance.test)
 ```
 
+**Output:**
+<p align="center">
+  <img src="Output/classes.png" alt="classes output" width="80%">
+</p>
+
 ### 7.10 Exceptions
 - Error handling using `try`, `except`, `else`, `finally` blocks.
 - Built-in exception hierarchy (`Exception`, `ValueError`, `TypeError`, etc.).
@@ -381,6 +608,11 @@ print (content)
 f.close()
 ```
 
+**Output:**
+<p align="center">
+  <img src="Output/file.png" alt="file output" width="80%">
+</p>
+
 ### 7.13 List Comprehensions
 - Concise syntax for creating lists: `[x**2 for x in range(10) if x % 2 == 0]`
 - More efficient and readable than equivalent for-loops with `append()`.
@@ -406,6 +638,11 @@ myfunc = len
 print (myfunc(mylist))
 ```
 
+**Output:**
+<p align="center">
+  <img src="Output/lists.png" alt="lists output" width="80%">
+</p>
+
 ### 7.14 Running Python Scripts
 - Command line: `python script.py`
 - Shebang line (`#!/usr/bin/env python3`) allows direct execution on Unix-like systems.
@@ -420,6 +657,26 @@ print (myfunc(mylist))
   - Uninstall: `pip uninstall package_name`
   - List: `pip list`
   - Requirements file: `pip install -r requirements.txt` (for reproducible environments)
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#1A237E', 'primaryColor': '#E8EAF6' }}}%%
+mindmap
+  root(PYTHON PARALLELISM ECOSYSTEM)
+    Architecture
+      Dynamic Typing
+      Indentation Logic
+      Interpreted Nature
+    Introspection
+      Help Utility
+      Dir Inspector
+    Data Handling
+      Mutable Collections
+      Immutable Containers
+    Standard Toolkit
+      Pip Package Manager
+      Multiprocessing
+      Threading
+```
 
 ## 8. Introducing Python Parallel Programming
 
@@ -450,6 +707,11 @@ if __name__ == "__main__":
     print("serial time=", end_time - start_time)
 ```
 
+**Output:**
+<p align="center">
+  <img src="Output/serail_test.png" alt="serial output" width="80%">
+</p>
+
 **Example implementation (`Chapter01/Codes/multithreading_test.py`):**
 ```python
 from do_something import *
@@ -476,6 +738,11 @@ if __name__ == "__main__":
     end_time = time.time()
     print("multithreading time=", end_time - start_time)
 ```
+
+**Output:**
+<p align="center">
+  <img src="Output/multithreading_test.png" alt="multithreading output" width="80%">
+</p>
 
 **Example implementation (`Chapter01/Codes/multiprocessing_test.py`):**
 ```python
@@ -504,6 +771,11 @@ if __name__ == "__main__":
     end_time = time.time()
     print("multiprocesses time=", end_time - start_time)
 ```
+
+**Output:**
+<p align="center">
+  <img src="Output/multiprocessing_test.png" alt="multiprocessing output" width="80%">
+</p>
 
 **Example implementation (`Chapter01/Codes/thread_and_processes.py`):**
 ```python
@@ -573,3 +845,44 @@ print("List processing complete.")
 end_time = time.time()
 print("Processes time =", end_time - start_time)
 ```
+
+**Output:**
+<p align="center">
+  <img src="Output/Thread%20and%20processes1.png" alt="thread and process 1" width="80%">
+  <img src="Output/Thread%20and%20processes2.png" alt="thread and process 2" width="80%">
+</p>
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#37474F', 'primaryColor': '#ECEFF1' }}}%%
+flowchart TD
+    %% Pro Max Python Parallel Architecture
+    classDef threadBox fill:#FFF8E1,stroke:#FF8F00,stroke-width:3px,color:#795548,font-weight:bold
+    classDef procBox fill:#E8F5E9,stroke:#2E7D32,stroke-width:3px,color:#1B5E20,font-weight:bold
+    classDef lock fill:#FFEBEE,stroke:#D32F2F,stroke-width:2px,color:#B71C1C,font-weight:bold
+
+    subgraph MultiThreading [PYTHON MULTI-THREADING]
+        direction TB
+        Mem[(SHARED RAM)]
+        Mem --- GIL{{GIL LOCK}}
+        GIL ==> T1((Thread 1))
+        GIL ==> T2((Thread 2))
+        note1["*Concurrency via GIL Interweaving*"]
+    end
+    
+    subgraph MultiProcessing [PYTHON MULTI-PROCESSING]
+        direction TB
+        subgraph P1 [PROCESS 1]
+            G1[GIL] --- Th1((Main))
+        end
+        subgraph P2 [PROCESS 2]
+            G2[GIL] --- Th1((Main))
+        end
+        note2["*Parallelism via Isolated Interpreters*"]
+    end
+
+    class MultiThreading threadBox
+    class MultiProcessing procBox
+    class GIL,G1,G2 lock
+```
+
+
